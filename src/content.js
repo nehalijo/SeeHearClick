@@ -1,4 +1,3 @@
-
 // Listen for messages from popup.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "scanAndFixIssues") {
@@ -61,3 +60,26 @@ function scanAndFixAccessibility() {
     return { fixedIssues };
 }
 
+// Read out text on hover
+function readText(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";  
+    speech.rate = 1;
+    speech.pitch = 1;
+    speech.volume = 1;
+
+    window.speechSynthesis.speak(speech);
+}
+
+// Enable hover-to-read
+document.body.addEventListener("mouseover", (event) => {
+    const text = event.target.innerText.trim();
+    if (text) {
+        readText(text);
+    }
+});
+
+// Stop reading when mouse leaves
+document.body.addEventListener("mouseout", () => {
+    window.speechSynthesis.cancel();
+});
