@@ -1,0 +1,29 @@
+{
+    "name": "SeeHearClick",
+    "description": "A Chrome extension to detect and improve web accessibility.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "assets/icon.png"
+    },
+    "icons": {
+      "16": "assets/icon.png",
+      "48": "assets/icon.png",
+      "128": "assets/icon.png"
+    },
+    "permissions": ["activeTab", "scripting"],
+    "background": {
+      "service_worker": "src/background.js"
+    },
+
+    "host_permissions": ["<all_urls>"],
+    
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["src/content.js"]
+      }
+    ]
+  }
+  
