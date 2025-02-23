@@ -9,6 +9,7 @@ SeeHearClick is a Chrome extension that scans websites for accessibility issues 
 - 🔍 **Detects low color contrast** issues based on WCAG guidelines.
 - 🏆 **Assigns an accessibility score** to each webpage.
 - 🔊 **Hover-to-read feature** that reads out text when hovered.
+- 🎯 **Navigate without a mouse** using keyboard shortcuts for better accessibility.
 
 ## Installation
 1. Download or clone this repository.
@@ -49,6 +50,7 @@ SeeHearClick/
 - Support for ARIA roles and landmark regions.
 - Improve color contrast checking using more advanced calculations.
 - Provide alternatives for websites with poor accessibility.
+- Allow seamless use across browsers.
 
 ## Our Team
 - Malavika Panicker
