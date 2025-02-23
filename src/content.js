@@ -88,8 +88,6 @@ document.body.addEventListener("mouseout", () => {
     window.speechSynthesis.cancel();
 });
 
-// ==================== New Keyboard Navigation Enhancements ====================
-
 // Function to make all interactive elements focusable
 function ensureFocusability() {
     const interactiveElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]');
