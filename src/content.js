@@ -1,3 +1,7 @@
+// content.js
+
+// ==================== Existing Functionality ====================
+
 // Listen for messages from popup.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "scanAndFixIssues") {
@@ -83,3 +87,56 @@ document.body.addEventListener("mouseover", (event) => {
 document.body.addEventListener("mouseout", () => {
     window.speechSynthesis.cancel();
 });
+
+// ==================== New Keyboard Navigation Enhancements ====================
+
+// Function to make all interactive elements focusable
+function ensureFocusability() {
+    const interactiveElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]');
+    interactiveElements.forEach((el) => {
+        if (!el.hasAttribute('tabindex')) {
+            el.setAttribute('tabindex', '0'); // Make focusable
+        }
+    });
+}
+
+// Function to fix logical tab order
+function fixTabOrder() {
+    const focusableElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
+    focusableElements.forEach((el, index) => {
+        el.setAttribute('tabindex', index + 1); // Set a logical tab order
+    });
+}
+
+// Function to add a visible focus indicator
+function addFocusIndicator() {
+    const style = document.createElement('style');
+    style.textContent = `
+        :focus {
+            outline: 2px solid #0066ff !important; /* Blue outline for focus */
+            outline-offset: 2px !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Function to detect and fix keyboard navigation issues
+function detectAndFixKeyboardNavigation() {
+    console.log('Ensuring focusability...');
+    ensureFocusability();
+
+    console.log('Fixing tab order...');
+    fixTabOrder();
+
+    console.log('Adding visible focus indicator...');
+    addFocusIndicator();
+
+    console.log('Keyboard navigation enhancements applied!');
+}
+
+// Run keyboard navigation enhancements when the page loads
+document.addEventListener('DOMContentLoaded', detectAndFixKeyboardNavigation);
+
+// Optional: Re-run the script when the DOM changes (e.g., dynamic content)
+const observer = new MutationObserver(detectAndFixKeyboardNavigation);
+observer.observe(document.body, { childList: true, subtree: true });
