@@ -6,22 +6,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-// Function to scan for issues and automatically fix them
+// Scan for issues and automatically fix them
 function scanAndFixAccessibility() {
     let issueCount = {};
+    let score = 100; // Set to 100
 
-    function addIssue(issueText) {
+    function addIssue(issueText, points = 5) {
         if (issueCount[issueText]) {
             issueCount[issueText]++;
         } else {
             issueCount[issueText] = 1;
         }
+        score -= points; // Subtract points for each issue
     }
 
     // Fix missing alt attributes on images
     document.querySelectorAll("img:not([alt])").forEach(img => {
         img.setAttribute("alt", "Image");
-        img.style.border = "2px solid green"; // Indicate fixed
+        img.style.border = "2px solid green"; 
         addIssue("✅ Fixed: Added alt attribute to images");
     });
 
@@ -33,7 +35,7 @@ function scanAndFixAccessibility() {
 
         if (!hasLabel) {
             button.setAttribute("aria-label", "Button");
-            button.style.border = "2px solid green"; // Indicate fixed
+            button.style.border = "2px solid green"; 
             addIssue("✅ Fixed: Added aria-label to buttons");
         }
     });
@@ -52,12 +54,57 @@ function scanAndFixAccessibility() {
         }
     });
 
+    // Subtract more points for contrast issues
+    const contrastIssues = checkColorContrast();
+    contrastIssues.forEach(issue => {
+        addIssue(issue, 10); 
+    });
+
     console.log("Accessibility scan and fixes completed.");
 
     // Convert object to array with counts
     let fixedIssues = Object.entries(issueCount).map(([text, count]) => `${text} (${count} times)`);
 
-    return { fixedIssues };
+    return { fixedIssues, score };
+}
+
+// Calculate luminance
+function getLuminance(color) {
+    const rgb = color.match(/\d+/g);
+    const [r, g, b] = rgb.map(c => {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// Calculate contrast ratio
+function getContrastRatio(color1, color2) {
+    const luminance1 = getLuminance(color1);
+    const luminance2 = getLuminance(color2);
+    const lighter = Math.max(luminance1, luminance2);
+    const darker = Math.min(luminance1, luminance2);
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+// Check color contrast issues
+function checkColorContrast() {
+    let contrastIssues = [];
+
+    document.querySelectorAll('*').forEach(element => {
+        const styles = window.getComputedStyle(element);
+        const bgColor = styles.backgroundColor;
+        const textColor = styles.color;
+
+        if (bgColor !== 'rgba(0, 0, 0, 0)' && textColor !== 'rgba(0, 0, 0, 0)') {
+            const contrastRatio = getContrastRatio(bgColor, textColor);
+            if (contrastRatio < 4.5) {
+                contrastIssues.push(`⚠️ Low contrast: ${element.tagName} with text "${element.innerText.trim()}"`);
+            }
+        }
+    });
+
+    return contrastIssues;
 }
 
 // Read out text on hover
@@ -84,7 +131,7 @@ document.body.addEventListener("mouseout", () => {
     window.speechSynthesis.cancel();
 });
 
-// Function to make all interactive elements focusable
+// Make all interactive elements focusable
 function ensureFocusability() {
     const interactiveElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]');
     interactiveElements.forEach((el) => {
@@ -94,7 +141,7 @@ function ensureFocusability() {
     });
 }
 
-// Function to fix logical tab order
+// Fix logical tab order
 function fixTabOrder() {
     const focusableElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
     focusableElements.forEach((el, index) => {
@@ -102,7 +149,7 @@ function fixTabOrder() {
     });
 }
 
-// Function to add a visible focus indicator
+// Add a visible focus indicator
 function addFocusIndicator() {
     const style = document.createElement('style');
     style.textContent = `
@@ -114,7 +161,7 @@ function addFocusIndicator() {
     document.head.appendChild(style);
 }
 
-// Function to detect and fix keyboard navigation issues
+// Detect and fix keyboard navigation issues
 function detectAndFixKeyboardNavigation() {
     console.log('Ensuring focusability...');
     ensureFocusability();
@@ -128,9 +175,9 @@ function detectAndFixKeyboardNavigation() {
     console.log('Keyboard navigation enhancements applied!');
 }
 
-// Run keyboard navigation enhancements when the page loads
+// Keyboard navigation enhancements
 document.addEventListener('DOMContentLoaded', detectAndFixKeyboardNavigation);
 
-// Optional: Re-run the script when the DOM changes (e.g., dynamic content)
+// Rerun when DOM changes
 const observer = new MutationObserver(detectAndFixKeyboardNavigation);
 observer.observe(document.body, { childList: true, subtree: true });
