@@ -1,7 +1,3 @@
-// content.js
-
-// ==================== Existing Functionality ====================
-
 // Listen for messages from popup.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "scanAndFixIssues") {
